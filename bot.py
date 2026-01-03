@@ -21,7 +21,8 @@ from telegram.ext import (
 from telegram.error import BadRequest
 
 # === SETTINGS ===
-TELEGRAM_TOKEN = "8562..."  # замени на новый токен
+import os
+TELEGRAM_TOKEN = os.getenv("8562030951:AAHU7QtGPKgMcMMUjaf_f3dpqEZy_PdQ9iM")
 
 # === LOAD VERBS ===
 with open("verbs.json", "r", encoding="utf-8") as f:
