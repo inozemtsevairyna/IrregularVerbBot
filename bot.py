@@ -523,8 +523,8 @@ async def process_forms_answer(
 
     answer = normalize_answer(text)
 
-        expected_past = [p.strip().lower() for p in verb["past"].split("/")]
-    expected_part = [p.strip().lower() for p in verb["part"].split("/")]
+    expected_past = [p.strip().lower() for p in verb["past"].split("/")]  # ✓ 4 пробела
+    expected_part = [p.strip().lower() for p in verb["part"].split("/")]  # ✓ 4 пробела
 
     # ФИКС ДЛЯ MODALНЫХ ГЛАГОЛОВ (can)
     answer_str = " ".join(answer).strip()
@@ -1143,10 +1143,14 @@ async def main():
     print("🚀 main() started")
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     
+    # ВСЕ handlers ОДИН РАЗ
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
-    app.add_handler(CallbackQueryHandler(button))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    app.add_handler(CommandHandler("stats", stats_cmd))
+    app.add_handler(CommandHandler("daily_on", daily_on))
+    app.add_handler(CommandHandler("daily_off", daily_off))
+    app.add_handler(CallbackQueryHandler(callback_handler))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, process_text_answer))
     
     print("🚀 Bot starting...")
     await app.run_polling(drop_pending_updates=True)
