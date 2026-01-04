@@ -14,44 +14,51 @@ print(f"🚀 2. ТОКЕН: '{TELEGRAM_TOKEN[:10]}...'")
 if not TELEGRAM_TOKEN or len(TELEGRAM_TOKEN) < 30:
     raise RuntimeError(f"❌ ТОКЕН ОШИБКА: {TELEGRAM_TOKEN}")
 print("🚀 3. ТОКЕН OK")
-print(f"🚀 4. ДЛИНА: {len(TELEGRAM_TOKEN) if TELEGRAM_TOKEN else 0}")
 
-# ПРОВЕРКА ТОКЕНА
-if not TELEGRAM_TOKEN:
-    raise RuntimeError("❌ TELEGRAM_TOKEN ПУСТ!")
-if len(TELEGRAM_TOKEN) < 30:
-    raise RuntimeError(f"❌ ТОКЕН НЕВЕРНЫЙ! Длина: {len(TELEGRAM_TOKEN)}")
-print("🚀 5. ТОКЕН OK")
-
-print("🚀 6. verbs.json...")
-# === LOAD VERBS ===
+print("🚀 4. verbs.json...")
 try:
     with open("verbs.json", "r", encoding="utf-8") as f:
         VERBS = json.load(f)
-    print("🚀 7. verbs.json OK")
+    print("🚀 5. verbs.json OK")
 except Exception as e:
-    print(f"❌ verbs.json ERROR: {e}")
-    VERBS = []
-    raise  # Останавливаем выполнение
+    print(f"❌ verbs.json: {e}")
+    raise
 
-print("🚀 8. Telegram импорты...")
-# === TELEGRAM ИМПОРТЫ ===
-from telegram import (
-    Update,
-    InlineKeyboardMarkup,
-    InlineKeyboardButton,
-)
+print("🚀 6. Импорты Telegram...")
+from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import (
-    ApplicationBuilder,
-    CommandHandler,
-    CallbackQueryHandler,
-    MessageHandler,
-    ContextTypes,
-    filters,
+    ApplicationBuilder, CommandHandler, CallbackQueryHandler,
+    MessageHandler, ContextTypes, filters
 )
 from telegram.error import BadRequest, Forbidden
 
-print("🚀 9. Готово к def main()!")
+print("🚀 7. Готово!")
+
+# === HANDLERS ===
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🎯 Verbs Bot! /learn")
+
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("/start /learn /help")
+
+# === MAIN ===
+async def main():
+    print("🚀 main() started")
+    # Фикс Python 3.13 + telegram-bot 20.7
+    import telegram.ext
+    app = telegram.ext.Application.builder().token(TELEGRAM_TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    print("🚀 Bot starting...")
+    await app.run_polling(drop_pending_updates=True)
+
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("help", help_command))
+    print("🚀 Bot starting...")
+    await app.run_polling()
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
 
 # === TOKEN ===
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
@@ -516,16 +523,21 @@ async def process_forms_answer(
 
     answer = normalize_answer(text)
 
-    expected_past = [p.strip().lower() for p in verb["past"].split("/")]
+        expected_past = [p.strip().lower() for p in verb["past"].split("/")]
     expected_part = [p.strip().lower() for p in verb["part"].split("/")]
 
-    s = user_stats[user_id]
+    # ФИКС ДЛЯ MODALНЫХ ГЛАГОЛОВ (can)
+    answer_str = " ".join(answer).strip()
+    if verb["inf"] == "can":
+        correct = any(x in answer_str for x in ["could be able", "be able to", "been able to", "be able"])
+    else:
+        correct = (
+            len(answer) >= 2
+            and answer[0] in expected_past
+            and answer[1] in expected_part
+        )
 
-    correct = (
-        len(answer) >= 2
-        and answer[0] in expected_past
-        and answer[1] in expected_part
-    )
+    s = user_stats[user_id]
 
     if correct:
         s["correct"] += 1
@@ -1094,26 +1106,51 @@ async def process_text_answer(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 
 # === MAIN ===
-def main():
+# 1. ДОБАВИТЕ ЭТИ 4 функции (ДО main()):
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🎯 Verbs Bot! /learn")
+
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("/start /learn /help")
+
+async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    await query.edit_message_text("🔘 OK!")
+
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("📝 /learn")
+
+# 2. ЗАМЕНИТЕ main():
+async def main():
+    print("🚀 main() started")
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
-
-    # Commands
+    
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("help", help_cmd))
-    app.add_handler(CommandHandler("stats", stats_cmd))
-    app.add_handler(CommandHandler("daily_on", daily_on))
-    app.add_handler(CommandHandler("daily_off", daily_off))
-
-    # Callback buttons
-    app.add_handler(CallbackQueryHandler(callback_handler))
-
-    # Text answers
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, process_text_answer))
-
-    print("Bot is running...")
-    app.run_polling()
-
+    app.add_handler(CommandHandler("help", help_command))
+    app.add_handler(CallbackQueryHandler(button))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    
+    print("🚀 Bot starting...")
+    await app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
-    main()
- 
+    import asyncio
+    asyncio.run(main())
+
+
+async def main():
+    print("🚀 main() started")
+    app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
+    
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("help", help_command))
+    app.add_handler(CallbackQueryHandler(button))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    
+    print("🚀 Bot starting...")
+    await app.run_polling(drop_pending_updates=True)
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
