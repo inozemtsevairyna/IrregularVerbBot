@@ -644,7 +644,8 @@ async def safe_edit(query, text, **kwargs):
             pass
         else:
             raise
-  # === CALLBACK HANDLER ===
+            
+# === CALLBACK HANDLER ===
 async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     if not query:
