@@ -1035,7 +1035,6 @@ async def main():
     print("🚀 Bot LIVE!")
     await app.run_polling(drop_pending_updates=True)
 
-
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(main())        
+    asyncio.run(main())    
