@@ -1110,20 +1110,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("📝 /learn")
 
 # 2. ЗАМЕНИТЕ main():
-def main():  # ← СИНХРОННАЯ!
+def main():
     print("🚀 main() started")
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("help", help_command))
-    app.add_handler(CommandHandler("stats", stats_cmd))
-    app.add_handler(CommandHandler("daily_on", daily_on))
-    app.add_handler(CommandHandler("daily_off", daily_off))
-    app.add_handler(CallbackQueryHandler(callback_handler))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, process_text_answer))
+    app.add_handler(CallbackQueryHandler(button_callback))  # кнопки!
     
-    print("🚀 Bot starting...")
-    app.run_polling(drop_pending_updates=True)  # ← БЕЗ await!
+    print("🚀 Bot starting... SINGLE INSTANCE ONLY!")
+    app.run_polling(drop_pending_updates=True, timeout=10)  # ✅ timeout!
 
 if __name__ == "__main__":
     main()  # ← БЕЗ asyncio!
