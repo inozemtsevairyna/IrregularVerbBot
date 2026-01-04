@@ -523,21 +523,13 @@ async def process_forms_answer(
 
     answer = normalize_answer(text)
 
-<<<<<<< HEAD
     expected_past = [p.strip().lower() for p in verb["past"].split("/")]
     expected_part = [p.strip().lower() for p in verb["part"].split("/")]
-
-    # ФИКС ДЛЯ MODALНЫХ ГЛАГОЛОВ (can)
     answer_str = " ".join(answer).strip()
     if verb["inf"] == "can":
         correct = any(x in answer_str for x in ["could be able", "be able to", "been able to", "be able"])
     else:
-        correct = (
-            len(answer) >= 2
-            and answer[0] in expected_past
-            and answer[1] in expected_part
-        )
-
+        correct = len(answer) >= 2 and answer[0] in expected_past and answer[1] in expected_part
     s = user_stats[user_id]
 
     if correct:
