@@ -43,14 +43,17 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # === ULTRA SIMPLE MAIN (работает 100%) ===
 def main():
-    print("🚀 main() started")
+    print("🚀 Render-compatible START")
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     
-    # ✅ ТОЛЬКО /start работает
     app.add_handler(CommandHandler("start", start))
     
-    print("🚀 Bot starting...")
-    app.run_polling(drop_pending_updates=True)
+    print("🚀 Bot LIVE - Render!")
+    app.run_polling(
+        drop_pending_updates=True,
+        stop_signals=None,  # ✅ Отключаем сигналы!
+        close_loop=False    # ✅ Не закрываем loop!
+    )
 
 if __name__ == "__main__":
     main()
