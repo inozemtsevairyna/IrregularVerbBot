@@ -46,7 +46,7 @@ def main():
     print("🚀 main() started")
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     
-    # ТОЛЬКО 2 handlers!
+    # ✅ ТОЛЬКО /start работает
     app.add_handler(CommandHandler("start", start))
     
     print("🚀 Bot starting...")
