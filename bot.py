@@ -46,11 +46,9 @@ def main():
     print("🚀 main() started")
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     
+    # БАЗОВЫЕ handlers (работают 100%)
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
-    app.add_handler(CommandHandler("stats", stats_cmd))
-    app.add_handler(CommandHandler("daily_on", daily_on))
-    app.add_handler(CommandHandler("daily_off", daily_off))
     app.add_handler(CallbackQueryHandler(callback_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, process_text_answer))
     
@@ -59,7 +57,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-
+    
 # === TOKEN ===
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 print(f"🔍 ТОКЕН: '{TELEGRAM_TOKEN}'")
