@@ -17,31 +17,23 @@ print("🚀 bot.py started")
 
 # === TOKEN ===
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-<<<<<<< HEAD
-if not TELEGRAM_TOKEN or len(TELEGRAM_TOKEN) < 30:
-    raise RuntimeError("❌ TELEGRAM_TOKEN invalid")
-=======
 if not TELEGRAM_TOKEN:
     raise RuntimeError("❌ TELEGRAM_TOKEN is not set (env TELEGRAM_TOKEN)")
 
 TELEGRAM_TOKEN = TELEGRAM_TOKEN.strip()
 if len(TELEGRAM_TOKEN) < 30:
     raise RuntimeError(f"❌ TELEGRAM_TOKEN looks too short: {len(TELEGRAM_TOKEN)} chars")
->>>>>>> 411b434b684cb8a5226ec9c6eca5e2ae93665148
 
 # === LOAD VERBS ===
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 VERBS_PATH = os.path.join(BASE_DIR, "verbs.json")
 
-<<<<<<< HEAD
-=======
 try:
     with open(VERBS_PATH, "r", encoding="utf-8") as f:
         VERBS = json.load(f)
 except FileNotFoundError:
     raise RuntimeError(f"❌ verbs.json not found at {VERBS_PATH}")
 
->>>>>>> 411b434b684cb8a5226ec9c6eca5e2ae93665148
 # === USER STORAGE ===
 user_state = {}
 user_stats = {}
@@ -652,11 +644,6 @@ async def process_speed_answer(
 # === SAFE EDIT (защита от ошибок Telegram) ===
 async def safe_edit(query, text, **kwargs):
     try:
-<<<<<<< HEAD
-        if query.message.text and query.message.text != text:
-            await query.message.edit_text(text, **kwargs)
-        else:
-=======
         msg = query.message
         if not msg:
             return
@@ -666,7 +653,6 @@ async def safe_edit(query, text, **kwargs):
             await msg.edit_text(text, **kwargs)
         else:
             # Если текст тот же, но передали новую клавиатуру — обновляем только её
->>>>>>> 411b434b684cb8a5226ec9c6eca5e2ae93665148
             if "reply_markup" in kwargs:
                 await msg.edit_reply_markup(kwargs["reply_markup"])
     except BadRequest as e:
@@ -691,134 +677,8 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.answer()
         init_user(user_id)
 
-<<<<<<< HEAD
-    # BACK TO MENU
-    if data == "back_main_menu":
-        user_state[user_id] = {}
-        await safe_edit(
-            query,
-            "Choose a training mode 👇",
-            reply_markup=main_menu_keyboard(user_id),
-        )
-        return
-
-    # MAIN MENU ACTIONS
-    if data == "menu_stats":
-        s = user_stats[user_id]
-        text = (
-            f"📊 *Your Stats:*\n\n"
-            f"Correct: {s['correct']}\n"
-            f"Wrong: {s['wrong']}\n"
-            f"Best streak: {s['best']}\n"
-            f"Errors saved: {len(user_errors[user_id])}"
-        )
-        await safe_edit(
-            query,
-            text,
-            parse_mode="Markdown",
-            reply_markup=main_menu_keyboard(user_id),
-        )
-        return
-
-    if data == "menu_help":
-        await safe_edit(
-            query,
-            EXPLANATION,
-            parse_mode="Markdown",
-            reply_markup=main_menu_keyboard(user_id),
-        )
-        return
-
-    if data == "menu_settings":
-        level = get_user_level(user_id)
-        daily = user_settings[user_id]["daily_enabled"]
-        text = (
-            f"⚙️ *Settings*\n\n"
-            f"Difficulty level: {level}\n"
-            f"Daily reminder: {'ON' if daily else 'OFF'}\n\n"
-            f"Choose an option:"
-        )
-        await safe_edit(
-            query,
-            text,
-            parse_mode="Markdown",
-            reply_markup=settings_keyboard(user_id),
-        )
-        return
-
-    # TOGGLE DAILY (settings)
-    if data == "toggle_daily":
-        user_settings[user_id]["daily_enabled"] = not user_settings[user_id]["daily_enabled"]
-
-        level = get_user_level(user_id)
-        daily = user_settings[user_id]["daily_enabled"]
-
-        text = (
-            f"⚙️ *Settings*\n\n"
-            f"Difficulty level: {level}\n"
-            f"Daily reminder: {'ON' if daily else 'OFF'}\n\n"
-            f"Choose an option:"
-        )
-
-        await safe_edit(
-            query,
-            text,
-            parse_mode="Markdown",
-            reply_markup=settings_keyboard(user_id),
-        )
-        return
-
-    # TOGGLE DAILY (main menu)
-    if data == "toggle_daily_main":
-        user_settings[user_id]["daily_enabled"] = not user_settings[user_id]["daily_enabled"]
-
-        await safe_edit(
-            query,
-            "Choose a training mode 👇",
-            reply_markup=main_menu_keyboard(user_id),
-        )
-        return
-
-    # DIFFICULTY LEVEL
-    if data.startswith("level_"):
-        level = int(data.split("_")[1])
-        user_settings[user_id]["level"] = level
-
-        await context.bot.send_message(
-            chat_id=chat_id,
-            text="Choose a training mode👇",
-            reply_markup=main_menu_keyboard(user_id),
-        )
-        return
-
-    # NEXT BUTTONS
-    if data.endswith("_next"):
-        mode = data.split("_")[0]
-
-        if mode == "translation":
-            await start_translation_training(user_id, context, chat_id)
-        elif mode == "forms":
-            await start_forms_training(user_id, context, chat_id)
-        elif mode == "mix":
-            await start_mix_training(user_id, context, chat_id)
-        elif mode == "repeat":
-            await start_repeat_errors(user_id, context, chat_id)
-        return
-
-    # SPEED MODE STOP
-    if data == "speed_stop":
-        state = user_state.get(user_id, {})
-
-        if state.get("mode") == "speed":
-            result = (
-                f"⏹ Speed Mode stopped.\n\n"
-                f"Correct answers: {state.get('correct', 0)}\n"
-                f"Total questions: {state.get('total', 0)}"
-            )
-=======
         # BACK TO MENU
         if data == "back_main_menu":
->>>>>>> 411b434b684cb8a5226ec9c6eca5e2ae93665148
             user_state[user_id] = {}
             await safe_edit(
                 query,
@@ -827,12 +687,6 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return
 
-<<<<<<< HEAD
-    # MENU TRAININGS
-    if data == "menu_train_forms":
-        await start_forms_training(user_id, context, chat_id)
-        return
-=======
         # MAIN MENU ACTIONS
         if data == "menu_stats":
             s = user_stats[user_id]
@@ -850,7 +704,6 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 reply_markup=main_menu_keyboard(user_id),
             )
             return
->>>>>>> 411b434b684cb8a5226ec9c6eca5e2ae93665148
 
         if data == "menu_help":
             await safe_edit(
@@ -892,8 +745,6 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"Choose an option:"
             )
 
-<<<<<<< HEAD
-=======
             await safe_edit(
                 query,
                 text,
@@ -1003,7 +854,6 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except:
             pass
 
->>>>>>> 411b434b684cb8a5226ec9c6eca5e2ae93665148
 # === DAILY REMINDER JOBS ===
 async def daily_reminder_job(context: ContextTypes.DEFAULT_TYPE):
     job = context.job
@@ -1224,23 +1074,11 @@ async def main():
 
 if __name__ == "__main__":
     import asyncio
-<<<<<<< HEAD
-    asyncio.run(main())        
-=======
 
     try:
         # Если цикл уже запущен (Render)
         loop = asyncio.get_running_loop()
         loop.create_task(main())
     except RuntimeError:
-<<<<<<< HEAD
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-
-    loop.create_task(main())
-    loop.run_forever()       
->>>>>>> 411b434b684cb8a5226ec9c6eca5e2ae93665148
-=======
         # Если цикла нет (локальный запуск)
-        asyncio.run(main())    
->>>>>>> 0f4a11dde91e2921d7289cc560ed40d1ad16c0c3
+        asyncio.run(main())  
