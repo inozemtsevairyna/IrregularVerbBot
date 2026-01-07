@@ -949,6 +949,14 @@ async def main():
 
     app = web.Application()
 
+    # === Health check endpoints for Render ===
+    async def health(request):
+        return web.Response(text="OK")
+
+    app.router.add_get("/", health)
+    app.router.add_get("/health", health)
+    # =========================================
+
     # Register webhook handler
     SimpleRequestHandler(dp, bot).register(app, path=WEBHOOK_PATH)
     setup_application(app, dp, bot=bot)
